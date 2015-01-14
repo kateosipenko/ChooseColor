@@ -28,6 +28,11 @@ namespace ChooseColor.CustomControls
 
         private Grid parent;
         private List<ImagePart> parts = new List<ImagePart>();
+        private StackPanel palette;
+        private List<SolidColorBrush> brushes = new List<SolidColorBrush>();
+        private ImagePart selectedPart = null;
+        private Button selectedBrush = null;
+        private Dictionary<ImagePart, SolidColorBrush> answers = new Dictionary<ImagePart, SolidColorBrush>();
 
         #endregion Fields
 
@@ -52,30 +57,23 @@ namespace ChooseColor.CustomControls
             this.DefaultStyleKey = typeof(PartedImage);
         }
 
-        #region EVENTS
-
-        protected async override void OnApplyTemplate()
+        protected override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
 
             parent = GetTemplateChild("mainGrid") as Grid;
-            StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            folder = await folder.GetFolderAsync(PicturesFolder);
-            folder = await folder.GetFolderAsync(PartsFolder);
-            if (folder != null)
-            {
-                var files = await folder.GetFilesAsync();
-                foreach (var item in files)
-                {
-                    if (item.Name.Contains("known"))
-                        continue;
+            palette = GetTemplateChild("palette") as StackPanel;
 
-                    CreateImagePart(item);
-                }
-            }
+            //TODO: remove fake
+            GenerateFakeBrushes();
+
+            SetupPalette();
+            SetupPicture();            
         }
 
-        private async void OnTapped(object sender, TappedRoutedEventArgs e)
+        #region EVENTS
+
+        private async void OnImageTapped(object sender, TappedRoutedEventArgs e)
         {
             foreach (var part in parts)
             {
@@ -87,10 +85,26 @@ namespace ChooseColor.CustomControls
                     else
                     {
                         e.Handled = true;
-                        part.KnownPart.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        if (selectedPart != part)
+                        {
+                            if (selectedPart != null)
+                            {
+                                AnimationHelper.ScaleOutAnimation(selectedPart.UnknownPart).Begin();
+                            }
+
+                            selectedPart = part;
+                            AnimationHelper.ScaleInAnimation(selectedPart.UnknownPart).Begin();
+                        }
+
+                        break;
                     }
                 }
             }
+        }
+
+        private void OnButtonTapped(object sender, TappedRoutedEventArgs e)
+        {
+            selectedBrush = (Button)sender;
         }
 
         #endregion EVENTS
@@ -110,8 +124,8 @@ namespace ChooseColor.CustomControls
             known.Tag = name;
             parent.Children.Add(known);
 
-            unknown.Tapped += OnTapped;
-            known.Tapped += OnTapped;
+            unknown.Tapped += OnImageTapped;
+            known.Tapped += OnImageTapped;
 
             ImagePart part = new ImagePart
             {
@@ -123,8 +137,71 @@ namespace ChooseColor.CustomControls
             parts.Add(part);
         }
 
+        private void SetAnswer()
+        {
+            if (selectedPart != null && selectedBrush != null)
+            {
+                selectedPart.KnownPart.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                answers.Add(selectedPart, selectedBrush.Tag as SolidColorBrush);
+                selectedBrush.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                selectedPart = null;
+                selectedBrush = null;
+            }
+        }
 
+        private void CancelAnswer()
+        {
+            selectedBrush = null;
+            selectedPart = null;
+        }
 
+        private async void SetupPicture()
+        {
+            StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            folder = await folder.GetFolderAsync(PicturesFolder);
+            folder = await folder.GetFolderAsync(PartsFolder);
+            if (folder != null)
+            {
+                var files = await folder.GetFilesAsync();
+                foreach (var item in files)
+                {
+                    if (item.Name.Contains("known"))
+                        continue;
 
+                    CreateImagePart(item);
+                }
+            }
+        }
+
+        private void SetupPalette()
+        {
+            foreach (var item in brushes)
+            {
+                CreateColorButton(item);
+            }
+        }
+
+        private void CreateColorButton(SolidColorBrush brush)
+        {
+            Button button = new Button();
+            button.Height = 80;
+            button.Width = 80;
+            button.Background = brush;
+            button.Padding = new Thickness(0);
+            button.Margin = new Thickness(10, 0, 10, 0);
+            button.BorderThickness = new Thickness(1);
+            button.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
+            button.Tag = brush;
+            button.Tapped += OnButtonTapped;
+            palette.Children.Add(button);
+        }
+
+        // TODO: remove fake
+        private void GenerateFakeBrushes()
+        {
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(100,0,0,255)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(100,255,0,0)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(100, 0, 255, 0)));
+        }
     }
 }
