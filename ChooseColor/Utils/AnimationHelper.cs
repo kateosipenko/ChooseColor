@@ -19,8 +19,9 @@ namespace ChooseColor.Utils
             Storyboard storyboard = new Storyboard();
             Storyboard.SetTarget(storyboard, target);
 
-            var ease = new QuadraticEase();
-            ease.EasingMode = EasingMode.EaseIn;
+            var ease = new BackEase();
+            ease.Amplitude = 3;
+            ease.EasingMode = EasingMode.EaseOut;
 
             var scaleX = CreateScaleKeyFrame(true);
             scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1, ease));
@@ -42,8 +43,9 @@ namespace ChooseColor.Utils
             Storyboard storyboard = new Storyboard();
             Storyboard.SetTarget(storyboard, target);
 
-            var ease = new QuadraticEase();
-            ease.EasingMode = EasingMode.EaseInOut;
+            var ease = new BackEase();
+            ease.Amplitude = 3;
+            ease.EasingMode = EasingMode.EaseIn;
 
             var scaleX = CreateScaleKeyFrame(true);
             scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1.15, ease));

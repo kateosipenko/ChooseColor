@@ -19,6 +19,7 @@ namespace ChooseColor.CustomControls
         #region Constants
 
         private const string PicturesFolder = "ImageParts";
+        private const string OriginalFileName = "original.jpg";
         private const string KnownUriFormat = "ms-appx:///{0}/{1}/known{2}";
         private const string UnknownUriFormat = "ms-appx:///{0}/{1}/{2}";
 
@@ -35,6 +36,7 @@ namespace ChooseColor.CustomControls
         private AppBarButton setAnswerButton;
         private AppBarButton cancelAnswerButton;
         private Dictionary<ImagePart, SolidColorBrush> answers = new Dictionary<ImagePart, SolidColorBrush>();
+        private Image original;
 
         #endregion Fields
 
@@ -67,6 +69,9 @@ namespace ChooseColor.CustomControls
             palette = GetTemplateChild("palette") as StackPanel;
             setAnswerButton = GetTemplateChild("ok") as AppBarButton;
             cancelAnswerButton = GetTemplateChild("cancel") as AppBarButton;
+            original = GetTemplateChild("original") as Image;
+
+            original.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, OriginalFileName), UriKind.Absolute)); 
 
             setAnswerButton.Tapped += OnSetAnswerButtonTapped;
             cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
@@ -153,7 +158,6 @@ namespace ChooseColor.CustomControls
             known.Source = new BitmapImage(new Uri(string.Format(KnownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
             known.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             known.Tag = name;
-            parent.Children.Add(known);
 
             unknown.Tapped += OnImageTapped;
             known.Tapped += OnImageTapped;
@@ -168,6 +172,14 @@ namespace ChooseColor.CustomControls
             parts.Add(part);
         }
 
+        private void AddKnownParts()
+        {
+            foreach(var part in parts)
+            {
+                parent.Children.Add(part.KnownPart);
+            }
+        }
+
         #region Answer
 
         private void SetAnswer()
@@ -177,6 +189,7 @@ namespace ChooseColor.CustomControls
                 selectedPart.KnownPart.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 answers.Add(selectedPart, selectedBrush.Tag as SolidColorBrush);
                 selectedBrush.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                AnimationHelper.ScaleOutAnimation(selectedPart.KnownPart).Begin();
                 ClearSelection();
             }
         }
@@ -218,12 +231,14 @@ namespace ChooseColor.CustomControls
                 var files = await folder.GetFilesAsync();
                 foreach (var item in files)
                 {
-                    if (item.Name.Contains("known"))
+                    if (item.Name.Contains("known") || item.Name.Contains("original"))
                         continue;
 
                     CreateImagePart(item);
                 }
             }
+
+            AddKnownParts();
         }
 
         private void SetupPalette()
