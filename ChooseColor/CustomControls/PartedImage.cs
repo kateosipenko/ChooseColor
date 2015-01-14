@@ -31,7 +31,9 @@ namespace ChooseColor.CustomControls
         private StackPanel palette;
         private List<SolidColorBrush> brushes = new List<SolidColorBrush>();
         private ImagePart selectedPart = null;
-        private Button selectedBrush = null;
+        private AppBarButton selectedBrush = null;
+        private AppBarButton setAnswerButton;
+        private AppBarButton cancelAnswerButton;
         private Dictionary<ImagePart, SolidColorBrush> answers = new Dictionary<ImagePart, SolidColorBrush>();
 
         #endregion Fields
@@ -63,15 +65,36 @@ namespace ChooseColor.CustomControls
 
             parent = GetTemplateChild("mainGrid") as Grid;
             palette = GetTemplateChild("palette") as StackPanel;
+            setAnswerButton = GetTemplateChild("ok") as AppBarButton;
+            cancelAnswerButton = GetTemplateChild("cancel") as AppBarButton;
+
+            setAnswerButton.Tapped += OnSetAnswerButtonTapped;
+            cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
+            setAnswerButton.IsEnabled = false;
+            cancelAnswerButton.IsEnabled = false;
 
             //TODO: remove fake
             GenerateFakeBrushes();
 
             SetupPalette();
-            SetupPicture();            
+            SetupPicture();
         }
 
         #region EVENTS
+
+        private void OnCancelAnswerButtonTapped(object sender, TappedRoutedEventArgs e)
+        {
+            ClearSelection();
+        }
+
+        private void OnSetAnswerButtonTapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (selectedBrush != null && selectedPart != null)
+            {
+                SetAnswer();
+                ClearSelection();
+            }
+        }
 
         private async void OnImageTapped(object sender, TappedRoutedEventArgs e)
         {
@@ -93,6 +116,7 @@ namespace ChooseColor.CustomControls
                             }
 
                             selectedPart = part;
+                            UpdateButtonsState();
                             AnimationHelper.ScaleInAnimation(selectedPart.UnknownPart).Begin();
                         }
 
@@ -100,11 +124,18 @@ namespace ChooseColor.CustomControls
                     }
                 }
             }
+
+            UpdateButtonsState();
         }
 
         private void OnButtonTapped(object sender, TappedRoutedEventArgs e)
         {
-            selectedBrush = (Button)sender;
+            if (selectedBrush != null)
+                AnimationHelper.ScaleOutAnimation(selectedBrush).Begin();
+
+            selectedBrush = (AppBarButton)sender;
+            AnimationHelper.ScaleInAnimation(selectedBrush).Begin();
+            UpdateButtonsState();
         }
 
         #endregion EVENTS
@@ -137,6 +168,8 @@ namespace ChooseColor.CustomControls
             parts.Add(part);
         }
 
+        #region Answer
+
         private void SetAnswer()
         {
             if (selectedPart != null && selectedBrush != null)
@@ -144,8 +177,7 @@ namespace ChooseColor.CustomControls
                 selectedPart.KnownPart.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 answers.Add(selectedPart, selectedBrush.Tag as SolidColorBrush);
                 selectedBrush.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                selectedPart = null;
-                selectedBrush = null;
+                ClearSelection();
             }
         }
 
@@ -154,6 +186,27 @@ namespace ChooseColor.CustomControls
             selectedBrush = null;
             selectedPart = null;
         }
+
+        private void UpdateButtonsState()
+        {
+            if (selectedBrush != null && selectedPart != null)
+            {
+                setAnswerButton.IsEnabled = true;
+                cancelAnswerButton.IsEnabled = true;
+            }
+            else if (selectedPart != null || selectedBrush != null)
+            {
+                setAnswerButton.IsEnabled = false;
+                cancelAnswerButton.IsEnabled = true;
+            }
+            else
+            {
+                setAnswerButton.IsEnabled = false;
+                cancelAnswerButton.IsEnabled = false;
+            }
+        }
+
+        #endregion Answer
 
         private async void SetupPicture()
         {
@@ -181,9 +234,26 @@ namespace ChooseColor.CustomControls
             }
         }
 
+        private void ClearSelection()
+        {
+            if (selectedPart != null)
+            {
+                AnimationHelper.ScaleOutAnimation(selectedPart.UnknownPart).Begin();
+                selectedPart = null;
+            }
+
+            if (selectedBrush != null)
+            {
+                AnimationHelper.ScaleOutAnimation(selectedBrush).Begin();
+                selectedBrush = null;
+            }
+
+            UpdateButtonsState();
+        }
+
         private void CreateColorButton(SolidColorBrush brush)
         {
-            Button button = new Button();
+            AppBarButton button = new AppBarButton();
             button.Height = 80;
             button.Width = 80;
             button.Background = brush;
@@ -192,6 +262,7 @@ namespace ChooseColor.CustomControls
             button.BorderThickness = new Thickness(1);
             button.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
             button.Tag = brush;
+            button.Style = Application.Current.Resources["RoundButtonStyle"] as Style;
             button.Tapped += OnButtonTapped;
             palette.Children.Add(button);
         }
@@ -199,9 +270,16 @@ namespace ChooseColor.CustomControls
         // TODO: remove fake
         private void GenerateFakeBrushes()
         {
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(100,0,0,255)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(100,255,0,0)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(100, 0, 255, 0)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 255)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 0, 0)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 255, 0)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 43, 63, 135)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 135, 63, 43)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 135, 43, 63)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 10, 255, 40)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 125, 80)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 75, 0, 24)));
+            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 54, 130, 47)));
         }
     }
 }

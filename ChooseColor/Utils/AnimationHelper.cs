@@ -24,12 +24,12 @@ namespace ChooseColor.Utils
 
             var scaleX = CreateScaleKeyFrame(true);
             scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1, ease));
-            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.7), 1.05, ease));
+            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.5), 1.15, ease));
             storyboard.Children.Add(scaleX);
 
             var scaleY = CreateScaleKeyFrame(false);
             scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1, ease));
-            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.7), 1.05, ease));
+            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.5), 1.15, ease));
             storyboard.Children.Add(scaleY);
             return storyboard;
         }
@@ -46,13 +46,13 @@ namespace ChooseColor.Utils
             ease.EasingMode = EasingMode.EaseInOut;
 
             var scaleX = CreateScaleKeyFrame(true);
-            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1.05, ease));
-            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.7), 1, ease));
+            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1.15, ease));
+            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.5), 1, ease));
             storyboard.Children.Add(scaleX);
 
             var scaleY = CreateScaleKeyFrame(false);
-            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1.05, ease));
-            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.7), 1, ease));
+            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1.15, ease));
+            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.5), 1, ease));
             storyboard.Children.Add(scaleY);
             return storyboard;
         }
