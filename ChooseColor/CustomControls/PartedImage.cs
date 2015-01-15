@@ -5,7 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -19,6 +22,7 @@ namespace ChooseColor.CustomControls
         #region Constants
 
         private const string PicturesFolder = "ImageParts";
+        private const string ColorsFile = "colors.xml";
         private const string OriginalFileName = "original.jpg";
         private const string KnownUriFormat = "ms-appx:///{0}/{1}/known{2}";
         private const string UnknownUriFormat = "ms-appx:///{0}/{1}/{2}";
@@ -71,18 +75,15 @@ namespace ChooseColor.CustomControls
             cancelAnswerButton = GetTemplateChild("cancel") as AppBarButton;
             original = GetTemplateChild("original") as Image;
 
-            original.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, OriginalFileName), UriKind.Absolute)); 
+            original.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, OriginalFileName), UriKind.Absolute));
 
             setAnswerButton.Tapped += OnSetAnswerButtonTapped;
             cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
             setAnswerButton.IsEnabled = false;
             cancelAnswerButton.IsEnabled = false;
 
-            //TODO: remove fake
-            GenerateFakeBrushes();
-
-            SetupPalette();
             SetupPicture();
+            SetupColors();
         }
 
         #region EVENTS
@@ -145,41 +146,6 @@ namespace ChooseColor.CustomControls
 
         #endregion EVENTS
 
-        private void CreateImagePart(StorageFile file)
-        {
-            string name = file.Name;
-
-            Image unknown = new Image();
-            unknown.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
-            unknown.Tag = name;
-            parent.Children.Add(unknown);
-
-            Image known = new Image();
-            known.Source = new BitmapImage(new Uri(string.Format(KnownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
-            known.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            known.Tag = name;
-
-            unknown.Tapped += OnImageTapped;
-            known.Tapped += OnImageTapped;
-
-            ImagePart part = new ImagePart
-            {
-                Key = name,
-                KnownPart = known,
-                UnknownPart = unknown
-            };
-
-            parts.Add(part);
-        }
-
-        private void AddKnownParts()
-        {
-            foreach(var part in parts)
-            {
-                parent.Children.Add(part.KnownPart);
-            }
-        }
-
         #region Answer
 
         private void SetAnswer()
@@ -221,6 +187,45 @@ namespace ChooseColor.CustomControls
 
         #endregion Answer
 
+        #region SetupControl
+
+        #region Picture
+
+        private void CreateImagePart(StorageFile file)
+        {
+            string name = file.Name;
+
+            Image unknown = new Image();
+            unknown.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
+            unknown.Tag = name;
+            parent.Children.Add(unknown);
+
+            Image known = new Image();
+            known.Source = new BitmapImage(new Uri(string.Format(KnownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
+            known.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            known.Tag = name;
+
+            unknown.Tapped += OnImageTapped;
+            known.Tapped += OnImageTapped;
+
+            ImagePart part = new ImagePart
+            {
+                Key = name,
+                KnownPart = known,
+                UnknownPart = unknown
+            };
+
+            parts.Add(part);
+        }
+
+        private void AddKnownParts()
+        {
+            foreach (var part in parts)
+            {
+                parent.Children.Add(part.KnownPart);
+            }
+        }
+
         private async void SetupPicture()
         {
             StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
@@ -241,6 +246,10 @@ namespace ChooseColor.CustomControls
             AddKnownParts();
         }
 
+        #endregion Picture
+
+        #region Palette
+
         private void SetupPalette()
         {
             foreach (var item in brushes)
@@ -248,6 +257,52 @@ namespace ChooseColor.CustomControls
                 CreateColorButton(item);
             }
         }
+
+        private async void SetupColors()
+        {
+            StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            folder = await folder.GetFolderAsync(PicturesFolder);
+            folder = await folder.GetFolderAsync(PartsFolder);
+            StorageFile colorsFile = await folder.GetFileAsync(ColorsFile);
+            var fileContent = await FileIO.ReadTextAsync(colorsFile);
+
+            var xmlContent = XDocument.Parse(fileContent);
+            if (xmlContent != null)
+            {
+                var values = xmlContent.Root.Elements().Select(item => item.Value).ToList();
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    if (values.Count > i)
+                    {
+                        var color = GetColorFromHex(values[i]);
+                        brushes.Add(color);
+                        parts[i].Color = color;
+                    }
+                }
+            }
+
+            Random rand = new Random();
+            brushes = brushes.OrderBy(c => rand.Next()).ToList();
+
+            SetupPalette();
+        }
+
+        private SolidColorBrush GetColorFromHex(string hexColor)
+        {
+            hexColor = hexColor.Replace("#", "");
+            if (hexColor.Length != 8)
+                throw new InvalidOperationException();
+
+            byte a = byte.Parse(hexColor.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+            byte r = byte.Parse(hexColor.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            byte g = byte.Parse(hexColor.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+            byte b = byte.Parse(hexColor.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+            return new SolidColorBrush(Color.FromArgb(a, r, g, b));
+        }
+
+        #endregion Palette
+
+        #endregion SetupControl
 
         private void ClearSelection()
         {
@@ -280,21 +335,6 @@ namespace ChooseColor.CustomControls
             button.Style = Application.Current.Resources["RoundButtonStyle"] as Style;
             button.Tapped += OnButtonTapped;
             palette.Children.Add(button);
-        }
-
-        // TODO: remove fake
-        private void GenerateFakeBrushes()
-        {
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 255)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 0, 0)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 255, 0)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 43, 63, 135)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 135, 63, 43)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 135, 43, 63)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 10, 255, 40)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 16, 125, 80)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 75, 0, 24)));
-            brushes.Add(new SolidColorBrush(Windows.UI.Color.FromArgb(255, 54, 130, 47)));
         }
     }
 }
