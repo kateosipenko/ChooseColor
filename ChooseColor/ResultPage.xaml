@@ -33,6 +33,10 @@
         <TextBlock Grid.Row="0" Grid.Column="1"
                    Text="Правильный ответ" Margin="0,24,0,0" />
         
+        <Image Grid.Column="1" Grid.Row="1"
+               Source="Icons/dali_colors.jpg" Margin="10"
+               VerticalAlignment="Center" HorizontalAlignment="Center" />
+        
         <Button Grid.Row="2" Grid.Column="1" Margin="0,0,24,24"
                 Command="{Binding GoToStartCommand}"
                 Style="{StaticResource MetroButton}" Content="На старт" />
