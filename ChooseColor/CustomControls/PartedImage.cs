@@ -31,7 +31,7 @@ namespace ChooseColor.CustomControls
 
         #region Fields
 
-        private Grid parent;
+        private Canvas parent;
         private List<ImagePart> parts = new List<ImagePart>();
         private StackPanel palette;
         private List<SolidColorBrush> brushes = new List<SolidColorBrush>();
@@ -69,7 +69,7 @@ namespace ChooseColor.CustomControls
         {
             base.OnApplyTemplate();
 
-            parent = GetTemplateChild("mainGrid") as Grid;
+            parent = GetTemplateChild("parent") as Canvas;
             palette = GetTemplateChild("palette") as StackPanel;
             setAnswerButton = GetTemplateChild("ok") as AppBarButton;
             cancelAnswerButton = GetTemplateChild("cancel") as AppBarButton;
@@ -117,10 +117,12 @@ namespace ChooseColor.CustomControls
                             if (selectedPart != null)
                             {
                                 AnimationHelper.ScaleOutAnimation(selectedPart.UnknownPart).Begin();
+                                selectedPart.UnknownPart.SetValue(Canvas.ZIndexProperty, 0);
                             }
 
                             selectedPart = part;
                             UpdateButtonsState();
+                            selectedPart.UnknownPart.SetValue(Canvas.ZIndexProperty, 1);
                             AnimationHelper.ScaleInAnimation(selectedPart.UnknownPart).Begin();
                         }
 
@@ -168,7 +170,9 @@ namespace ChooseColor.CustomControls
                 selectedPart.KnownPart.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 answers.Add(selectedPart, selectedBrush.Tag as SolidColorBrush);
                 selectedBrush.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                AnimationHelper.ScaleOutAnimation(selectedPart.KnownPart).Begin();
+                selectedPart.UnknownPart.SetValue(Canvas.ZIndexProperty, 0);
+                selectedPart.KnownPart.SetValue(Canvas.ZIndexProperty, 1);
+                AnimationHelper.ScaleOutAnimation(selectedPart.KnownPart).Begin();                
                 ClearSelection();
             }
         }
@@ -204,19 +208,22 @@ namespace ChooseColor.CustomControls
 
         #region Picture
 
-        private void CreateImagePart(StorageFile file)
+        private void CreateImagePart(StorageFile file, int imageHeight, int top, int left)
         {
             string name = file.Name;
 
-            Image unknown = new Image();
+            Image unknown = new Image { Tag = name, Opacity = 0, Height = imageHeight };
             unknown.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
-            unknown.Tag = name;
-            unknown.Opacity = 0;
+            unknown.SetValue(Canvas.TopProperty, top);
+            unknown.SetValue(Canvas.LeftProperty, left);
+            unknown.SetValue(Canvas.ZIndexProperty, 0);
             parent.Children.Add(unknown);
 
-            Image known = new Image();
+            Image known = new Image { Tag = name, Visibility = Windows.UI.Xaml.Visibility.Collapsed, Height = imageHeight };
             known.Source = new BitmapImage(new Uri(string.Format(KnownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
-            known.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            known.SetValue(Canvas.TopProperty, top);
+            known.SetValue(Canvas.LeftProperty, left);
+            known.SetValue(Canvas.ZIndexProperty, 0);
             known.Tag = name;
 
             unknown.Tapped += OnImageTapped;
@@ -248,17 +255,24 @@ namespace ChooseColor.CustomControls
             if (folder != null)
             {
                 var files = await folder.GetFilesAsync();
+                int imageHeight = (int)(parent.ActualHeight);
+                int top = (int)((parent.ActualHeight - imageHeight) / 2);
+                var imageSize = await ImageUtils.GetImagePixelSize(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, "1.png"));
+                var width = (imageHeight * imageSize.Width) / imageSize.Height;
+                int left = (int) ((this.ActualWidth - width) / 2);
                 foreach (var item in files)
                 {
                     if (item.Name.Contains("known") || item.Name.Contains("original"))
                         continue;
 
-                    CreateImagePart(item);
+                    CreateImagePart(item, imageHeight, top, left);
                 }
+
+
+                AddKnownParts();
+                SetupColors();
             }
 
-            AddKnownParts();
-            SetupColors();
         }
 
         #endregion Picture
@@ -327,7 +341,7 @@ namespace ChooseColor.CustomControls
             paletteItems.AddRange(palette.Children);
             paletteItems.Add(setAnswerButton);
             paletteItems.Add(cancelAnswerButton);
-            AnimationHelper.PaletteAnimation(paletteItems).Begin();            
+            AnimationHelper.PaletteAnimation(paletteItems).Begin();
         }
 
         #endregion SetupControl
@@ -336,6 +350,8 @@ namespace ChooseColor.CustomControls
         {
             if (selectedPart != null)
             {
+                selectedPart.UnknownPart.SetValue(Canvas.ZIndexProperty, 0);
+                selectedPart.KnownPart.SetValue(Canvas.ZIndexProperty, 0);
                 AnimationHelper.ScaleOutAnimation(selectedPart.UnknownPart).Begin();
                 selectedPart = null;
             }

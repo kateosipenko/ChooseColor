@@ -100,7 +100,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Grid x:Name="mainGrid" Grid.Row="0" Margin="0,24,0,24" />
+                        <Canvas x:Name="parent" Grid.Row="0" Margin="0,24,0,24" />
                         
                         <Image Grid.RowSpan="2" Grid.Row="0"
                                Margin="24" Height="200"

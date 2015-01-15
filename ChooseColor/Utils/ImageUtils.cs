@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using System.IO;
 using Windows.Foundation;
+using Windows.UI.Xaml;
 
 namespace ChooseColor.Utils
 {
@@ -34,6 +35,15 @@ namespace ChooseColor.Utils
             byte a = (byte)stream.ReadByte();
             isTappedOnTransparent = a == 0 && r == 0 && b == 0 && g == 0;
             return isTappedOnTransparent;
+        }
+
+        public static async Task<Size> GetImagePixelSize(string imagePath)
+        {
+            BitmapImage image = new BitmapImage();
+            var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri(imagePath, UriKind.Absolute));
+            var stream = await file.OpenStreamForReadAsync();
+            await image.SetSourceAsync(stream.AsRandomAccessStream());
+            return new Size(image.PixelWidth, image.PixelHeight);
         }
     }
 }
