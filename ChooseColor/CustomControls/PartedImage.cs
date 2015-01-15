@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Xml;
 using System.Xml.Linq;
 using Windows.Storage;
@@ -59,6 +60,22 @@ namespace ChooseColor.CustomControls
         }
 
         #endregion PartsFolderProperty
+
+        #region CompletedCommandProperty
+
+        public static readonly DependencyProperty CompletedCommandProperty = DependencyProperty.Register(
+            "CompletedCommand",
+            typeof(ICommand),
+            typeof(PartedImage),
+            new PropertyMetadata(null));
+
+        public ICommand CompletedCommand
+        {
+            get { return (ICommand)GetValue(CompletedCommandProperty); }
+            set { SetValue(CompletedCommandProperty, value); }
+        }
+
+        #endregion CompletedCommandProperty
 
         public PartedImage()
         {
@@ -172,8 +189,14 @@ namespace ChooseColor.CustomControls
                 selectedBrush.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                 selectedPart.UnknownPart.SetValue(Canvas.ZIndexProperty, 0);
                 selectedPart.KnownPart.SetValue(Canvas.ZIndexProperty, 1);
+                selectedPart.UserAnswer = selectedBrush.Tag as SolidColorBrush;
                 AnimationHelper.ScaleOutAnimation(selectedPart.KnownPart).Begin();                
                 ClearSelection();
+
+                if (parts.Where(item => item.UserAnswer != null).Count() == parts.Count)
+                {
+                    CompleteGame();
+                }
             }
         }
 
@@ -262,7 +285,7 @@ namespace ChooseColor.CustomControls
                 int left = (int) ((this.ActualWidth - width) / 2);
                 foreach (var item in files)
                 {
-                    if (item.Name.Contains("known") || item.Name.Contains("original"))
+                    if (item.Name.Contains("known") || item.Name.Contains("original") || !ImageUtils.IsPartImageFile(item.Name))
                         continue;
 
                     CreateImagePart(item, imageHeight, top, left);
@@ -346,12 +369,12 @@ namespace ChooseColor.CustomControls
         private void AnimateAppearance()
         {
             AnimationHelper.OpacityAnimation(parts.Select(item => item.UnknownPart)).Begin();
-            AnimationHelper.TranslateXAnimation(original).Begin();
+            AnimationHelper.TranslateXAnimation(original, 800, 0).Begin();
             var paletteItems = new List<UIElement>();
             paletteItems.AddRange(palette.Children);
             paletteItems.Add(setAnswerButton);
             paletteItems.Add(cancelAnswerButton);
-            AnimationHelper.PaletteAnimation(paletteItems).Begin();
+            AnimationHelper.PaletteAnimation(paletteItems, 95, 0).Begin();
         }
 
         #endregion SetupControl
@@ -394,6 +417,25 @@ namespace ChooseColor.CustomControls
             button.RenderTransform = new CompositeTransform() { TranslateY = 95 };
 
             palette.Children.Add(button);
+        }
+
+        private void CompleteGame()
+        {
+            AnimationHelper.TranslateXAnimation(original, 0, 800).Begin();
+            var paletteItems = new List<UIElement>();
+            paletteItems.Add(setAnswerButton);
+            paletteItems.Add(cancelAnswerButton);
+            AnimationHelper.PaletteAnimation(paletteItems, 0, 95).Begin();
+            var animation = AnimationHelper.ScaleInAnimation(parent, 1.5, 1);
+            animation.Completed += (sender, args) =>
+            {
+                if (CompletedCommand != null && CompletedCommand.CanExecute(this.parts))
+                {
+                    CompletedCommand.Execute(this.parts);
+                }
+            };
+
+            animation.Begin();
         }
     }
 }

@@ -122,6 +122,12 @@
     </Compile>
     <Compile Include="Utils\AnimationHelper.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
+    <Compile Include="ViewModels\Helpers\NavigationProvider.cs" />
+    <Compile Include="ViewModels\Helpers\RelayCommand.cs" />
+    <Compile Include="ViewModels\Helpers\RelayCommandTResult.cs" />
+    <Compile Include="ViewModels\Locator.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\ViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

@@ -45,5 +45,11 @@ namespace ChooseColor.Utils
             await image.SetSourceAsync(stream.AsRandomAccessStream());
             return new Size(image.PixelWidth, image.PixelHeight);
         }
+
+        public static bool IsPartImageFile(string fileName)
+        {
+            var extension = fileName.Substring(fileName.LastIndexOf("."));
+            return extension == ".png"; 
+        }
     }
 }

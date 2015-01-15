@@ -11,13 +11,17 @@ namespace ChooseColor.Utils
 {
     public class AnimationHelper
     {
-        public static Storyboard TranslateXAnimation(UIElement target)
+        public static Storyboard TranslateXAnimation(UIElement target, int from, int to)
         {
             Storyboard storyboard = new Storyboard();
             target.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
             target.RenderTransform = new CompositeTransform();
 
-            var ease = new BackEase { EasingMode = EasingMode.EaseOut };
+            var ease = new BackEase();
+            if (from < to)
+                ease.EasingMode = EasingMode.EaseOut;
+            else
+                ease.EasingMode = EasingMode.EaseIn;
 
             DoubleAnimationUsingKeyFrames animation = new DoubleAnimationUsingKeyFrames();
             Storyboard.SetTarget(animation, target);
@@ -25,12 +29,12 @@ namespace ChooseColor.Utils
 
             EasingDoubleKeyFrame start = new EasingDoubleKeyFrame();
             start.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
-            start.Value = 800;
+            start.Value = from;
             start.EasingFunction = ease;
 
             EasingDoubleKeyFrame end = new EasingDoubleKeyFrame();
             end.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(1.7));
-            end.Value = 0;
+            end.Value = to;
             end.EasingFunction = ease;
 
             animation.KeyFrames.Add(start);
@@ -60,14 +64,17 @@ namespace ChooseColor.Utils
             return storyboard;
         }
 
-        public static Storyboard PaletteAnimation(IEnumerable<UIElement> controls)
+        public static Storyboard PaletteAnimation(IEnumerable<UIElement> controls, int from, int to)
         {
             Storyboard storyboard = new Storyboard();
             double delay = 0.1;
             double ratio = 0.1;
 
             var ease = new BackEase();
-            ease.EasingMode = EasingMode.EaseOut;
+            if (from < to)
+                ease.EasingMode = EasingMode.EaseOut;
+            else
+                ease.EasingMode = EasingMode.EaseIn;
 
             foreach (var item in controls)
             {
@@ -80,12 +87,12 @@ namespace ChooseColor.Utils
 
                 EasingDoubleKeyFrame start = new EasingDoubleKeyFrame();
                 start.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(delay));
-                start.Value = 95;
+                start.Value = from;
                 start.EasingFunction = ease;
 
                 EasingDoubleKeyFrame end = new EasingDoubleKeyFrame();
                 end.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(delay + 0.5));
-                end.Value = 0;
+                end.Value = to;
                 end.EasingFunction = ease;
 
                 animation.KeyFrames.Add(start);
@@ -100,6 +107,11 @@ namespace ChooseColor.Utils
 
         public static Storyboard ScaleInAnimation(UIElement target)
         {
+            return ScaleInAnimation(target, 1.15, 0.5);
+        }
+
+        public static Storyboard ScaleInAnimation(UIElement target, double scale, double duration)
+        {
             target.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
             target.RenderTransform = new CompositeTransform();
 
@@ -112,12 +124,12 @@ namespace ChooseColor.Utils
 
             var scaleX = CreateScaleKeyFrame(true);
             scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1, ease));
-            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.5), 1.15, ease));
+            scaleX.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(duration), scale, ease));
             storyboard.Children.Add(scaleX);
 
             var scaleY = CreateScaleKeyFrame(false);
             scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0), 1, ease));
-            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(0.5), 1.15, ease));
+            scaleY.KeyFrames.Add(CreateFrame(TimeSpan.FromSeconds(duration), scale, ease));
             storyboard.Children.Add(scaleY);
             return storyboard;
         }
