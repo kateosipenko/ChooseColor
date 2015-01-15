@@ -1,0 +1,21 @@
+﻿<Page
+    x:Class="ChooseColor.StartPage"
+
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ChooseColor"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    
+    <Grid Background="{StaticResource BackgroundColorBrush}">
+        <Image Source="Icons/davinci.png" />
+        <Button Content="Начать" Background="{StaticResource ButtonColorBrush}"
+                x:Name="beginBtn"
+                FontSize="32" FontWeight="ExtraLight"
+                BorderThickness="0" Padding="80,10,80,10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,32,32" />
+    </Grid>
+</Page>

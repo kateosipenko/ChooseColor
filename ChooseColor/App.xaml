@@ -6,6 +6,12 @@
 
     <Application.Resources>
         <ResourceDictionary>
+            <Color x:Key="BackgroundColor">#FF110D22</Color>
+            <SolidColorBrush x:Key="BackgroundColorBrush" Color="{StaticResource BackgroundColor}" />
+
+            <Color x:Key="ButtonColor">#FF433485</Color>
+            <SolidColorBrush x:Key="ButtonColorBrush" Color="{StaticResource ButtonColor}" />
+
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>

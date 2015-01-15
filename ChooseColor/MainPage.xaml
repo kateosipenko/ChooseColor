@@ -9,6 +9,6 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="mainGrid">
-        <customControls:PartedImage PartsFolder="time" />
+        <customControls:PartedImage PartsFolder="djaconda" />
     </Grid>
 </Page>
