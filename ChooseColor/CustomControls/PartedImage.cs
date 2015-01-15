@@ -294,26 +294,36 @@ namespace ChooseColor.CustomControls
             StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             folder = await folder.GetFolderAsync(PicturesFolder);
             folder = await folder.GetFolderAsync(PartsFolder);
-            StorageFile colorsFile = await folder.GetFileAsync(ColorsFile);
-            var fileContent = await FileIO.ReadTextAsync(colorsFile);
-
-            var xmlContent = XDocument.Parse(fileContent);
-            if (xmlContent != null)
+            string fileContent = string.Empty;
+            try
             {
-                var values = xmlContent.Root.Elements().Select(item => item.Value).ToList();
-                for (int i = 0; i < parts.Count; i++)
-                {
-                    if (values.Count > i)
-                    {
-                        var color = GetColorFromHex(values[i]);
-                        brushes.Add(color);
-                        parts[i].Color = color;
-                    }
-                }
+                StorageFile colorsFile = await folder.GetFileAsync(ColorsFile);
+                fileContent = await FileIO.ReadTextAsync(colorsFile);
+            }
+            catch (Exception ex)
+            {
             }
 
-            Random rand = new Random();
-            brushes = brushes.OrderBy(c => rand.Next()).ToList();
+            if (!string.IsNullOrEmpty(fileContent))
+            {
+                var xmlContent = XDocument.Parse(fileContent);
+                if (xmlContent != null)
+                {
+                    var values = xmlContent.Root.Elements().Select(item => item.Value).ToList();
+                    for (int i = 0; i < parts.Count; i++)
+                    {
+                        if (values.Count > i)
+                        {
+                            var color = GetColorFromHex(values[i]);
+                            brushes.Add(color);
+                            parts[i].Color = color;
+                        }
+                    }
+                }
+
+                Random rand = new Random();
+                brushes = brushes.OrderBy(c => rand.Next()).ToList();
+            }
 
             SetupPalette();
         }

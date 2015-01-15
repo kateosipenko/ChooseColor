@@ -163,6 +163,7 @@
     <Content Include="ImageParts\serov\7.png" />
     <Content Include="ImageParts\serov\8.png" />
     <Content Include="ImageParts\serov\9.png" />
+    <Content Include="ImageParts\serov\colors.xml" />
     <Content Include="ImageParts\serov\known1.png" />
     <Content Include="ImageParts\serov\known10.png" />
     <Content Include="ImageParts\serov\known2.png" />
@@ -184,6 +185,7 @@
     <Content Include="ImageParts\time\7.png" />
     <Content Include="ImageParts\time\8.png" />
     <Content Include="ImageParts\time\9.png" />
+    <Content Include="ImageParts\time\colors.xml" />
     <Content Include="ImageParts\time\known1.png" />
     <Content Include="ImageParts\time\known10.png" />
     <Content Include="ImageParts\time\known2.png" />
