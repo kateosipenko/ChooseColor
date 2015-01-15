@@ -11,6 +11,93 @@ namespace ChooseColor.Utils
 {
     public class AnimationHelper
     {
+        public static Storyboard TranslateXAnimation(UIElement target)
+        {
+            Storyboard storyboard = new Storyboard();
+            target.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+            target.RenderTransform = new CompositeTransform();
+
+            var ease = new BackEase { EasingMode = EasingMode.EaseOut };
+
+            DoubleAnimationUsingKeyFrames animation = new DoubleAnimationUsingKeyFrames();
+            Storyboard.SetTarget(animation, target);
+            Storyboard.SetTargetProperty(animation, "(UIElement.RenderTransform).(CompositeTransform.TranslateX)");
+
+            EasingDoubleKeyFrame start = new EasingDoubleKeyFrame();
+            start.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+            start.Value = 800;
+            start.EasingFunction = ease;
+
+            EasingDoubleKeyFrame end = new EasingDoubleKeyFrame();
+            end.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(1.7));
+            end.Value = 0;
+            end.EasingFunction = ease;
+
+            animation.KeyFrames.Add(start);
+            animation.KeyFrames.Add(end);
+            storyboard.Children.Add(animation);
+            return storyboard;
+        }
+
+        public static Storyboard OpacityAnimation(IEnumerable<UIElement> controls)
+        {
+            Storyboard storyboard = new Storyboard();
+            double delay = 0.1;
+            double ratio = 0.1;
+            foreach (var item in controls)
+            {
+                DoubleAnimation animation = new DoubleAnimation();
+                Storyboard.SetTargetProperty(animation, "Opacity");
+                Storyboard.SetTarget(animation, item);
+                animation.From = 0;
+                animation.To = 1;
+                animation.BeginTime = TimeSpan.FromSeconds(delay);
+                animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
+                delay += ratio;
+                storyboard.Children.Add(animation);
+            }
+
+            return storyboard;
+        }
+
+        public static Storyboard PaletteAnimation(IEnumerable<UIElement> controls)
+        {
+            Storyboard storyboard = new Storyboard();
+            double delay = 0.1;
+            double ratio = 0.1;
+
+            var ease = new BackEase();
+            ease.EasingMode = EasingMode.EaseOut;
+
+            foreach (var item in controls)
+            {
+                item.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+                item.RenderTransform = new CompositeTransform();
+
+                DoubleAnimationUsingKeyFrames animation = new DoubleAnimationUsingKeyFrames();
+                Storyboard.SetTarget(animation, item);
+                Storyboard.SetTargetProperty(animation, "(UIElement.RenderTransform).(CompositeTransform.TranslateY)");
+
+                EasingDoubleKeyFrame start = new EasingDoubleKeyFrame();
+                start.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(delay));
+                start.Value = 95;
+                start.EasingFunction = ease;
+
+                EasingDoubleKeyFrame end = new EasingDoubleKeyFrame();
+                end.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(delay + 0.5));
+                end.Value = 0;
+                end.EasingFunction = ease;
+
+                animation.KeyFrames.Add(start);
+                animation.KeyFrames.Add(end);
+                storyboard.Children.Add(animation);
+
+                delay += ratio;
+            }
+
+            return storyboard;
+        }
+
         public static Storyboard ScaleInAnimation(UIElement target)
         {
             target.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);

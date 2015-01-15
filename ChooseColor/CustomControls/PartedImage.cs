@@ -76,14 +76,12 @@ namespace ChooseColor.CustomControls
             original = GetTemplateChild("original") as Image;
 
             original.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, OriginalFileName), UriKind.Absolute));
+            // for appearing animation
+            original.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+            original.RenderTransform = new CompositeTransform { TranslateX = 800 };
 
-            setAnswerButton.Tapped += OnSetAnswerButtonTapped;
-            cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
-            setAnswerButton.IsEnabled = false;
-            cancelAnswerButton.IsEnabled = false;
-
+            SetupAnswerButtons();
             SetupPicture();
-            SetupColors();
         }
 
         #region EVENTS
@@ -148,6 +146,21 @@ namespace ChooseColor.CustomControls
 
         #region Answer
 
+        private void SetupAnswerButtons()
+        {
+            setAnswerButton.Tapped += OnSetAnswerButtonTapped;
+            cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
+            setAnswerButton.IsEnabled = false;
+            cancelAnswerButton.IsEnabled = false;
+
+            // for palette animation
+            setAnswerButton.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+            setAnswerButton.RenderTransform = new CompositeTransform() { TranslateY = 95 };
+
+            cancelAnswerButton.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+            cancelAnswerButton.RenderTransform = new CompositeTransform() { TranslateY = 95 };
+        }
+
         private void SetAnswer()
         {
             if (selectedPart != null && selectedBrush != null)
@@ -198,6 +211,7 @@ namespace ChooseColor.CustomControls
             Image unknown = new Image();
             unknown.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
             unknown.Tag = name;
+            unknown.Opacity = 0;
             parent.Children.Add(unknown);
 
             Image known = new Image();
@@ -244,6 +258,7 @@ namespace ChooseColor.CustomControls
             }
 
             AddKnownParts();
+            SetupColors();
         }
 
         #endregion Picture
@@ -256,6 +271,8 @@ namespace ChooseColor.CustomControls
             {
                 CreateColorButton(item);
             }
+
+            AnimateAppearance();
         }
 
         private async void SetupColors()
@@ -302,6 +319,17 @@ namespace ChooseColor.CustomControls
 
         #endregion Palette
 
+        private void AnimateAppearance()
+        {
+            AnimationHelper.OpacityAnimation(parts.Select(item => item.UnknownPart)).Begin();
+            AnimationHelper.TranslateXAnimation(original).Begin();
+            var paletteItems = new List<UIElement>();
+            paletteItems.AddRange(palette.Children);
+            paletteItems.Add(setAnswerButton);
+            paletteItems.Add(cancelAnswerButton);
+            AnimationHelper.PaletteAnimation(paletteItems).Begin();            
+        }
+
         #endregion SetupControl
 
         private void ClearSelection()
@@ -334,6 +362,11 @@ namespace ChooseColor.CustomControls
             button.Tag = brush;
             button.Style = Application.Current.Resources["RoundButtonStyle"] as Style;
             button.Tapped += OnButtonTapped;
+
+            // for palette animation
+            button.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+            button.RenderTransform = new CompositeTransform() { TranslateY = 95 };
+
             palette.Children.Add(button);
         }
     }
