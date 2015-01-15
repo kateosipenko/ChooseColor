@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChooseColor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace ChooseColor
         public ResultPage()
         {
             this.InitializeComponent();
+            Locator.ResultStatic.InitializeViewModel();
         }
     }
 }

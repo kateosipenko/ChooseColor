@@ -12,11 +12,8 @@ namespace ChooseColor.ViewModels
 {
     public abstract class ViewModel : INotifyPropertyChanged
     {
-        private bool isNetworkAvaible;
-
         #region Fields
 
-        private int busyCount = 0;
         private static NavigationProvider navigationProvider;
 
         #endregion Fields

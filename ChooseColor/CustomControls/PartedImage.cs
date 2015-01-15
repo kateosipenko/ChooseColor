@@ -323,7 +323,7 @@ namespace ChooseColor.CustomControls
                 StorageFile colorsFile = await folder.GetFileAsync(ColorsFile);
                 fileContent = await FileIO.ReadTextAsync(colorsFile);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
 

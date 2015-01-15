@@ -21,7 +21,8 @@ namespace ChooseColor.ViewModels
 
         private void AnswersCompletedExecute(List<ImagePart> answers)
         {
-            NavigationProvider.Navigate(typeof(ResultPage), answers);
+            Locator.ResultStatic.SetAnswers(answers);
+            NavigationProvider.Navigate(typeof(ResultPage));
         }
     }
 }

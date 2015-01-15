@@ -29,5 +29,29 @@ namespace ChooseColor.ViewModels
         }
 
         #endregion Main
+
+        #region Result
+
+        private static ResultViewModel result;
+
+        public static ResultViewModel ResultStatic
+        {
+            get
+            {
+                if (result == null)
+                {
+                    result = new ResultViewModel();
+                }
+
+                return result;
+            }
+        }
+
+        public ResultViewModel Result
+        {
+            get { return ResultStatic; }
+        }
+
+        #endregion Result
     }
 }

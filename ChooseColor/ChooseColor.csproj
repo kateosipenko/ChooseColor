@@ -127,6 +127,7 @@
     <Compile Include="ViewModels\Helpers\RelayCommandTResult.cs" />
     <Compile Include="ViewModels\Locator.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\ResultViewModel.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

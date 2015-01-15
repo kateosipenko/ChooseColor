@@ -55,12 +55,8 @@
                 <CompositeTransform />
             </Image.RenderTransform>
         </Image>
-        <Button Content="Начать" Background="{StaticResource ButtonColorBrush}"
+        <Button Content="Начать" Style="{StaticResource MetroButton}"
                 x:Name="beginBtn" RenderTransformOrigin="0.5, 0.5"
-                FontSize="32" FontWeight="ExtraLight"
-                BorderThickness="0" Padding="80,10,80,10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
                 Margin="0,0,32,32">
             <Button.RenderTransform>
                 <CompositeTransform />
