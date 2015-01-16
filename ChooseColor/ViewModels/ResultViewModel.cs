@@ -13,6 +13,9 @@ namespace ChooseColor.ViewModels
     {
         #region Answers
 
+        // TODO: replace
+        private const string TextResultPattern = "Вы на {0}% Сальвадор Дали";
+
         private ObservableCollection<ImagePart> answers = new ObservableCollection<ImagePart>();
 
         public ObservableCollection<ImagePart> Answers
@@ -56,8 +59,9 @@ namespace ChooseColor.ViewModels
 
         public void InitializeViewModel()
         {
-            TextResult = answers.Where(item => item.UserAnswer.Color == item.Color.Color).Count() + " из "
-                + answers.Count;
+            double correctAnsswersCount = answers.Where(item => item.UserAnswer.Color == item.Color.Color).Count();
+            int percent =(int) ((correctAnsswersCount / answers.Count) * 100);
+            TextResult = string.Format(TextResultPattern, percent);
         }
 
         private void GoToStartExecute()

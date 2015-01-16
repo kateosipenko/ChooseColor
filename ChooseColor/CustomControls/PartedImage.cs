@@ -236,7 +236,8 @@ namespace ChooseColor.CustomControls
             string name = file.Name;
 
             Image unknown = new Image { Tag = name, Opacity = 0, Height = imageHeight };
-            unknown.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
+            string imagePath = string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name);
+            unknown.Source = new BitmapImage(new Uri(imagePath, UriKind.Absolute));
             unknown.SetValue(Canvas.TopProperty, top);
             unknown.SetValue(Canvas.LeftProperty, left);
             unknown.SetValue(Canvas.ZIndexProperty, 0);
@@ -256,7 +257,8 @@ namespace ChooseColor.CustomControls
             {
                 Key = name,
                 KnownPart = known,
-                UnknownPart = unknown
+                UnknownPart = unknown,
+                UnknownImagePath = imagePath,
             };
 
             parts.Add(part);
@@ -368,7 +370,7 @@ namespace ChooseColor.CustomControls
 
         private void AnimateAppearance()
         {
-            AnimationHelper.OpacityAnimation(parts.Select(item => item.UnknownPart)).Begin();
+            AnimationHelper.OpacityQueueAnimation(parts.Select(item => item.UnknownPart)).Begin();
             AnimationHelper.TranslateXAnimation(original, 800, 0).Begin();
             var paletteItems = new List<UIElement>();
             paletteItems.AddRange(palette.Children);

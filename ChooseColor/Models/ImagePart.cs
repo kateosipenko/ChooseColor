@@ -12,6 +12,9 @@ namespace ChooseColor.Models
     public class ImagePart
     {
         public Image UnknownPart { get; set; }
+
+        public string UnknownImagePath { get; set; }
+
         public Image KnownPart { get; set; }
         public string Key { get; set; }
 

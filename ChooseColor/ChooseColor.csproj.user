@@ -4,5 +4,6 @@
     <RemoteDebugMachine>StasTab</RemoteDebugMachine>
     <UseAuthentication>true</UseAuthentication>
     <RemoteDebugEnabled>false</RemoteDebugEnabled>
+    <UseSimulator>false</UseSimulator>
   </PropertyGroup>
 </Project>

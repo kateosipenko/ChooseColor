@@ -43,7 +43,39 @@ namespace ChooseColor.Utils
             return storyboard;
         }
 
+        public static Storyboard OpacityAnimation(UIElement control)
+        {
+            Storyboard storyboard = new Storyboard();
+            DoubleAnimation animation = new DoubleAnimation();
+            Storyboard.SetTargetProperty(animation, "Opacity");
+            Storyboard.SetTarget(animation, control);
+            animation.From = 0;
+            animation.To = 1;
+            animation.BeginTime = TimeSpan.FromSeconds(0);
+            animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
+            storyboard.Children.Add(animation);
+            return storyboard;
+        }
+
         public static Storyboard OpacityAnimation(IEnumerable<UIElement> controls)
+        {
+            Storyboard storyboard = new Storyboard();
+            foreach (var item in controls)
+            {
+                DoubleAnimation animation = new DoubleAnimation();
+                Storyboard.SetTargetProperty(animation, "Opacity");
+                Storyboard.SetTarget(animation, item);
+                animation.From = 0;
+                animation.To = 1;
+                animation.BeginTime = TimeSpan.FromSeconds(0);
+                animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
+                storyboard.Children.Add(animation);
+            }
+
+            return storyboard;
+        }
+
+        public static Storyboard OpacityQueueAnimation(IEnumerable<UIElement> controls)
         {
             Storyboard storyboard = new Storyboard();
             double delay = 0.1;

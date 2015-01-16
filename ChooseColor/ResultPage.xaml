@@ -33,9 +33,16 @@
         <TextBlock Grid.Row="0" Grid.Column="1"
                    Text="Правильный ответ" Margin="0,24,0,0" />
         
-        <Image Grid.Column="1" Grid.Row="1"
+        <Image Grid.Column="1" Grid.Row="1" Opacity="0" x:Name="correctAnswer"
                Source="Icons/dali_colors.jpg" Margin="10"
                VerticalAlignment="Center" HorizontalAlignment="Center" />
+        
+        <Grid Grid.Row="1" Grid.Column="0" x:Name="parent" Margin="10" />
+        
+        <Grid Grid.Row="1" Grid.Column="0"
+              Background="{StaticResource BackgroundColorBrush}"
+              x:Name="shadow" Margin="10" />
+        
         
         <Button Grid.Row="2" Grid.Column="1" Margin="0,0,24,24"
                 Command="{Binding GoToStartCommand}"
@@ -46,3 +53,4 @@
 
     </Grid>
 </Page>
+
