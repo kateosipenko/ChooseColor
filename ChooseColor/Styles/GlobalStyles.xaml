@@ -89,7 +89,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style TargetType="customControls:PartedImage">
         <Setter Property="Template">
             <Setter.Value>
@@ -101,33 +101,16 @@
                         </Grid.RowDefinitions>
 
                         <Canvas x:Name="parent" Grid.Row="0" Margin="0,24,0,24" />
-                        
+
                         <Image Grid.RowSpan="2" Grid.Row="0"
-                               Margin="24" Height="200"
-                               Width="200"
+                               Margin="10,24,24,0" 
                                VerticalAlignment="Top"
                                HorizontalAlignment="Right"
                                x:Name="original" />
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
-                                    VerticalAlignment="Center" Grid.Row="1">
-                            <StackPanel VerticalAlignment="Center"
-                                    Orientation="Horizontal"
+                        <StackPanel VerticalAlignment="Center" Grid.Row="1"
+                                    Orientation="Horizontal" HorizontalAlignment="Center"
                                     x:Name="palette" />
-                            <StackPanel Orientation="Horizontal" 
-                                        VerticalAlignment="Center">
-                                <AppBarButton Height="80" 
-                                              Icon="Accept" 
-                                              x:Name="ok" Margin="10,0,10,0"
-                                              VerticalAlignment="Center"
-                                              Width="80" Style="{StaticResource RoundButtonStyle}"/>
-                                <AppBarButton Height="80"
-                                              Icon="Cancel"
-                                              x:Name="cancel" Margin="10,0,10,0"
-                                              VerticalAlignment="Center"
-                                              Width="80" Style="{StaticResource RoundButtonStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

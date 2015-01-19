@@ -17,12 +17,7 @@
         </Style>
     </Page.Resources>
     
-    <Grid>
-        
-        <Grid.Background>
-            <ImageBrush ImageSource="Icons/background.jpg" Opacity="0.9" />
-        </Grid.Background>
-        
+    <Grid Background="{StaticResource BackgroundColorBrush}">            
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />
@@ -32,10 +27,13 @@
             <RowDefinition />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
-        <TextBlock Grid.Row="0" Grid.Column="0"
+
+        <Image Source="Icons/background.jpg" Opacity="0.6" Stretch="UniformToFill"
+               Grid.RowSpan="3" Grid.ColumnSpan="3" />
+
+        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"
                    Text="Оригинал" Margin="0,24,0,0" />
-        <TextBlock Grid.Row="0" Grid.Column="1"
+        <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"
                    Text="Ваш вариант" Margin="0,24,0,0" />
         
         <Image Grid.Column="0" Grid.Row="1" Opacity="0" x:Name="correctAnswer"

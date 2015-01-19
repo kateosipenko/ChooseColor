@@ -122,11 +122,8 @@ namespace ChooseColor.CustomControls
 
             parent = GetTemplateChild("parent") as Canvas;
             palette = GetTemplateChild("palette") as StackPanel;
-            setAnswerButton = GetTemplateChild("ok") as AppBarButton;
-            cancelAnswerButton = GetTemplateChild("cancel") as AppBarButton;
             original = GetTemplateChild("original") as Image;
             isTemplateApplyed = true;
-            SetupAnswerButtons();
             SetupPicture();
         }
 
@@ -192,21 +189,6 @@ namespace ChooseColor.CustomControls
         #endregion EVENTS
 
         #region Answer
-
-        private void SetupAnswerButtons()
-        {
-            setAnswerButton.Tapped += OnSetAnswerButtonTapped;
-            cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
-            setAnswerButton.IsEnabled = false;
-            cancelAnswerButton.IsEnabled = false;
-
-            // for palette animation
-            setAnswerButton.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
-            setAnswerButton.RenderTransform = new CompositeTransform() { TranslateY = 95 };
-
-            cancelAnswerButton.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
-            cancelAnswerButton.RenderTransform = new CompositeTransform() { TranslateY = 95 };
-        }
 
         private void SetAnswer()
         {
@@ -287,6 +269,8 @@ namespace ChooseColor.CustomControls
                 var width = (imageHeight * imageSize.Width) / imageSize.Height;
                 int left = (int)((this.ActualWidth - width) / 2);
 
+                original.Width = left - original.Margin.Right - original.Margin.Left;
+
                 foreach (var item in ImageParts)
                 {
                     item.UnknownPart.Height = imageHeight;
@@ -319,6 +303,19 @@ namespace ChooseColor.CustomControls
                 CreateColorButton(item);
             }
 
+            setAnswerButton = CreateColorButton(null);
+            setAnswerButton.Icon = new SymbolIcon(Symbol.Accept);
+
+            cancelAnswerButton = CreateColorButton(null);
+            cancelAnswerButton.Icon = new SymbolIcon(Symbol.Cancel);
+
+            setAnswerButton.Tapped -= OnButtonTapped;
+            cancelAnswerButton.Tapped -= OnButtonTapped;
+            setAnswerButton.Tapped += OnSetAnswerButtonTapped;
+            cancelAnswerButton.Tapped += OnCancelAnswerButtonTapped;
+            setAnswerButton.IsEnabled = false;
+            cancelAnswerButton.IsEnabled = false;
+            
             AnimateAppearance();
         }
 
@@ -339,11 +336,7 @@ namespace ChooseColor.CustomControls
         private void AnimateAppearance()
         {            
             AnimationHelper.TranslateXAnimation(original, 800, 0).Begin();
-            var paletteItems = new List<UIElement>();
-            paletteItems.AddRange(palette.Children);
-            paletteItems.Add(setAnswerButton);
-            paletteItems.Add(cancelAnswerButton);
-            AnimationHelper.PaletteAnimation(paletteItems, 95, 0).Begin();
+            AnimationHelper.PaletteAnimation(palette.Children, 95, 0).Begin();
             AnimationHelper.OpacityAnimation(ImageParts.Select(item => item.UnknownPart)).Begin();
         }
 
@@ -368,11 +361,11 @@ namespace ChooseColor.CustomControls
             UpdateButtonsState();
         }
 
-        private void CreateColorButton(SolidColorBrush brush)
+        private AppBarButton CreateColorButton(SolidColorBrush brush)
         {
             AppBarButton button = new AppBarButton();
-            button.Height = 80;
-            button.Width = 80;
+            button.Width = this.ActualWidth / 16;
+            button.Height = button.Width;
             button.Background = brush;
             button.Padding = new Thickness(0);
             button.Margin = new Thickness(10, 0, 10, 0);
@@ -387,6 +380,7 @@ namespace ChooseColor.CustomControls
             button.RenderTransform = new CompositeTransform() { TranslateY = 95 };
 
             palette.Children.Add(button);
+            return button;
         }
 
         private void CompleteGame()
