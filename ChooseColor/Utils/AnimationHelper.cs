@@ -67,8 +67,8 @@ namespace ChooseColor.Utils
                 Storyboard.SetTarget(animation, item);
                 animation.From = 0;
                 animation.To = 1;
-                animation.BeginTime = TimeSpan.FromSeconds(0);
-                animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
+                animation.BeginTime = TimeSpan.FromSeconds(1);
+                animation.Duration = new Duration(TimeSpan.FromSeconds(2));
                 storyboard.Children.Add(animation);
             }
 

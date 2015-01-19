@@ -10,6 +10,10 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="mainGrid">
-        <customControls:PartedImage PartsFolder="time" CompletedCommand="{Binding AnswersCompletedCommand}" />
+        <customControls:PartedImage OriginalSource="{Binding OriginalSource}"
+                                    PatternSource="{Binding PatternSource}"
+                                    ImageParts="{Binding ImageParts}"
+                                    CompletedCommand="{Binding AnswersCompletedCommand}">
+        </customControls:PartedImage>
     </Grid>
 </Page>

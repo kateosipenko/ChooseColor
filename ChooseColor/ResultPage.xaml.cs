@@ -37,13 +37,11 @@ namespace ChooseColor
             foreach (var item in Locator.ResultStatic.Answers)
             {
                 Image image = new Image();
-                image.Source = item.UnknownPart.Source;
+                image.Source = new BitmapImage(new Uri(item.UserAnswerPath, UriKind.Absolute));
+                image.Opacity = 0;
                 parent.Children.Add(image);
-                var imagePath = await ImageUtils.ChangeImageColor(image, item.UserAnswer, item.Key);
-                image.Source = new BitmapImage(new Uri(imagePath, UriKind.Absolute));
             }
 
-            shadow.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             AnimationHelper.OpacityAnimation(parent.Children).Begin();
             AnimationHelper.OpacityAnimation(correctAnswer).Begin();
         }

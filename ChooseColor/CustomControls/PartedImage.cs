@@ -2,6 +2,7 @@
 using ChooseColor.Utils;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,20 +21,11 @@ namespace ChooseColor.CustomControls
 {
     public class PartedImage : Control
     {
-        #region Constants
-
-        private const string PicturesFolder = "ImageParts";
-        private const string ColorsFile = "colors.xml";
-        private const string OriginalFileName = "original.jpg";
-        private const string KnownUriFormat = "ms-appx:///{0}/{1}/known{2}";
-        private const string UnknownUriFormat = "ms-appx:///{0}/{1}/{2}";
-
-        #endregion Constants
-
         #region Fields
 
         private Canvas parent;
-        private List<ImagePart> parts = new List<ImagePart>();
+        private bool isPictureSetuped;
+        private bool isTemplateApplyed;
         private StackPanel palette;
         private List<SolidColorBrush> brushes = new List<SolidColorBrush>();
         private ImagePart selectedPart = null;
@@ -44,22 +36,6 @@ namespace ChooseColor.CustomControls
         private Image original;
 
         #endregion Fields
-
-        #region PartsFolderProperty
-
-        public static readonly DependencyProperty PartsFolderProperty = DependencyProperty.Register(
-            "PartsFolder",
-            typeof(string),
-            typeof(PartedImage),
-            new PropertyMetadata(null));
-
-        public string PartsFolder
-        {
-            get { return (string)GetValue(PartsFolderProperty); }
-            set { SetValue(PartsFolderProperty, value); }
-        }
-
-        #endregion PartsFolderProperty
 
         #region CompletedCommandProperty
 
@@ -77,6 +53,64 @@ namespace ChooseColor.CustomControls
 
         #endregion CompletedCommandProperty
 
+        #region ImagePartsProperty
+
+        public static readonly DependencyProperty ImagePartsProperty = DependencyProperty.Register(
+            "ImageParts",
+            typeof(ObservableCollection<ImagePart>),
+            typeof(PartedImage),
+            new PropertyMetadata(null, OnImagePartsPropertyChanged));
+
+        public ObservableCollection<ImagePart> ImageParts
+        {
+            get { return (ObservableCollection<ImagePart>)GetValue(ImagePartsProperty); }
+            set { SetValue(ImagePartsProperty, value); }
+        }
+
+        private static void OnImagePartsPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            ((PartedImage)sender).SetupPicture();
+        }
+
+        #endregion ImagePartsProperty
+
+        #region OriginalSourceProperty
+
+        public static readonly DependencyProperty OriginalSourceProperty = DependencyProperty.Register(
+            "OriginalSource",
+            typeof(string),
+            typeof(PartedImage),
+            new PropertyMetadata(null, OnOriginalSourcePropertyChanged));
+
+        public string OriginalSource
+        {
+            get { return (string)GetValue(OriginalSourceProperty); }
+            set { SetValue(OriginalSourceProperty, value); }
+        }
+
+        private static void OnOriginalSourcePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            ((PartedImage)sender).SetupPicture();
+        }
+
+        #endregion OriginalSourceProperty
+
+        #region PatternSourceProperty
+
+        public static readonly DependencyProperty PatternSourceProperty = DependencyProperty.Register(
+            "PatternSource",
+            typeof(string),
+            typeof(PartedImage),
+            new PropertyMetadata(null, OnOriginalSourcePropertyChanged));
+
+        public string PatternSource
+        {
+            get { return (string)GetValue(PatternSourceProperty); }
+            set { SetValue(PatternSourceProperty, value); }
+        }
+
+        #endregion PatternSourceProperty
+
         public PartedImage()
         {
             this.DefaultStyleKey = typeof(PartedImage);
@@ -91,12 +125,7 @@ namespace ChooseColor.CustomControls
             setAnswerButton = GetTemplateChild("ok") as AppBarButton;
             cancelAnswerButton = GetTemplateChild("cancel") as AppBarButton;
             original = GetTemplateChild("original") as Image;
-
-            original.Source = new BitmapImage(new Uri(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, OriginalFileName), UriKind.Absolute));
-            // for appearing animation
-            original.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
-            original.RenderTransform = new CompositeTransform { TranslateX = 800 };
-
+            isTemplateApplyed = true;
             SetupAnswerButtons();
             SetupPicture();
         }
@@ -113,13 +142,12 @@ namespace ChooseColor.CustomControls
             if (selectedBrush != null && selectedPart != null)
             {
                 SetAnswer();
-                ClearSelection();
             }
         }
 
         private async void OnImageTapped(object sender, TappedRoutedEventArgs e)
         {
-            foreach (var part in parts)
+            foreach (var part in ImageParts)
             {
                 if (part.KnownPart.Visibility != Windows.UI.Xaml.Visibility.Visible)
                 {
@@ -184,20 +212,29 @@ namespace ChooseColor.CustomControls
         {
             if (selectedPart != null && selectedBrush != null)
             {
+                var brush = selectedBrush.Tag as SolidColorBrush;
                 selectedPart.KnownPart.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                answers.Add(selectedPart, selectedBrush.Tag as SolidColorBrush);
+                answers.Add(selectedPart, brush);
                 selectedBrush.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                var part = this.ImageParts.SingleOrDefault(item => item.Key == selectedPart.Key);
+                SaveAnswer(part, brush);
                 selectedPart.UnknownPart.SetValue(Canvas.ZIndexProperty, 0);
                 selectedPart.KnownPart.SetValue(Canvas.ZIndexProperty, 1);
-                selectedPart.UserAnswer = selectedBrush.Tag as SolidColorBrush;
-                AnimationHelper.ScaleOutAnimation(selectedPart.KnownPart).Begin();                
+                selectedPart.UserAnswer = brush;
+                AnimationHelper.ScaleOutAnimation(selectedPart.KnownPart).Begin();
                 ClearSelection();
 
-                if (parts.Where(item => item.UserAnswer != null).Count() == parts.Count)
+
+                if (ImageParts.Where(item => item.UserAnswer != null).Count() == ImageParts.Count())
                 {
                     CompleteGame();
                 }
             }
+        }
+
+        private async void SaveAnswer(ImagePart part, SolidColorBrush brush)
+        {
+            part.UserAnswerPath = await ImageUtils.ChangeImageColor(selectedPart.UnknownPart, brush, selectedPart.Key);
         }
 
         private void CancelAnswer()
@@ -231,73 +268,44 @@ namespace ChooseColor.CustomControls
 
         #region Picture
 
-        private void CreateImagePart(StorageFile file, int imageHeight, int top, int left)
-        {
-            string name = file.Name;
-
-            Image unknown = new Image { Tag = name, Opacity = 0, Height = imageHeight };
-            string imagePath = string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, name);
-            unknown.Source = new BitmapImage(new Uri(imagePath, UriKind.Absolute));
-            unknown.SetValue(Canvas.TopProperty, top);
-            unknown.SetValue(Canvas.LeftProperty, left);
-            unknown.SetValue(Canvas.ZIndexProperty, 0);
-            parent.Children.Add(unknown);
-
-            Image known = new Image { Tag = name, Visibility = Windows.UI.Xaml.Visibility.Collapsed, Height = imageHeight };
-            known.Source = new BitmapImage(new Uri(string.Format(KnownUriFormat, PicturesFolder, PartsFolder, name), UriKind.Absolute));
-            known.SetValue(Canvas.TopProperty, top);
-            known.SetValue(Canvas.LeftProperty, left);
-            known.SetValue(Canvas.ZIndexProperty, 0);
-            known.Tag = name;
-
-            unknown.Tapped += OnImageTapped;
-            known.Tapped += OnImageTapped;
-
-            ImagePart part = new ImagePart
-            {
-                Key = name,
-                KnownPart = known,
-                UnknownPart = unknown,
-                UnknownImagePath = imagePath,
-            };
-
-            parts.Add(part);
-        }
-
-        private void AddKnownParts()
-        {
-            foreach (var part in parts)
-            {
-                parent.Children.Add(part.KnownPart);
-            }
-        }
-
         private async void SetupPicture()
         {
-            StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            folder = await folder.GetFolderAsync(PicturesFolder);
-            folder = await folder.GetFolderAsync(PartsFolder);
-            if (folder != null)
+            if (ImageParts != null && ImageParts.Count() > 0 && !string.IsNullOrEmpty(OriginalSource)
+                && !string.IsNullOrEmpty(PatternSource) && !isPictureSetuped && isTemplateApplyed)
             {
-                var files = await folder.GetFilesAsync();
+                original.Source = new BitmapImage(new Uri(OriginalSource, UriKind.Absolute));
+                // for appearing animation
+                original.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+                original.RenderTransform = new CompositeTransform { TranslateX = 800 };
+
+                while (parent.ActualHeight == 0)
+                    await Task.Delay(100);
+
                 int imageHeight = (int)(parent.ActualHeight);
                 int top = (int)((parent.ActualHeight - imageHeight) / 2);
-                var imageSize = await ImageUtils.GetImagePixelSize(string.Format(UnknownUriFormat, PicturesFolder, PartsFolder, "1.png"));
+                var imageSize = await ImageUtils.GetImagePixelSize(string.Format(PatternSource));
                 var width = (imageHeight * imageSize.Width) / imageSize.Height;
-                int left = (int) ((this.ActualWidth - width) / 2);
-                foreach (var item in files)
-                {
-                    if (item.Name.Contains("known") || item.Name.Contains("original") || !ImageUtils.IsPartImageFile(item.Name))
-                        continue;
+                int left = (int)((this.ActualWidth - width) / 2);
 
-                    CreateImagePart(item, imageHeight, top, left);
+                foreach (var item in ImageParts)
+                {
+                    item.UnknownPart.Height = imageHeight;
+                    item.KnownPart.Height = imageHeight;
+                    item.UnknownPart.SetValue(Canvas.TopProperty, top);
+                    item.KnownPart.SetValue(Canvas.TopProperty, top);
+                    item.UnknownPart.SetValue(Canvas.LeftProperty, left);
+                    item.KnownPart.SetValue(Canvas.LeftProperty, left);
+
+                    item.UnknownPart.Tapped += OnImageTapped;
+                    item.KnownPart.Tapped += OnImageTapped;
+
+                    parent.Children.Add(item.UnknownPart);
+                    parent.Children.Add(item.KnownPart);
                 }
 
-
-                AddKnownParts();
+                isPictureSetuped = true;
                 SetupColors();
             }
-
         }
 
         #endregion Picture
@@ -314,69 +322,29 @@ namespace ChooseColor.CustomControls
             AnimateAppearance();
         }
 
-        private async void SetupColors()
+        private void SetupColors()
         {
-            StorageFolder folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            folder = await folder.GetFolderAsync(PicturesFolder);
-            folder = await folder.GetFolderAsync(PartsFolder);
-            string fileContent = string.Empty;
-            try
+            foreach (var item in ImageParts)
             {
-                StorageFile colorsFile = await folder.GetFileAsync(ColorsFile);
-                fileContent = await FileIO.ReadTextAsync(colorsFile);
-            }
-            catch (Exception)
-            {
+                brushes.Add(item.Color);
             }
 
-            if (!string.IsNullOrEmpty(fileContent))
-            {
-                var xmlContent = XDocument.Parse(fileContent);
-                if (xmlContent != null)
-                {
-                    var values = xmlContent.Root.Elements().Select(item => item.Value).ToList();
-                    for (int i = 0; i < parts.Count; i++)
-                    {
-                        if (values.Count > i)
-                        {
-                            var color = GetColorFromHex(values[i]);
-                            brushes.Add(color);
-                            parts[i].Color = color;
-                        }
-                    }
-                }
-
-                Random rand = new Random();
-                brushes = brushes.OrderBy(c => rand.Next()).ToList();
-            }
-
+            Random rand = new Random();
+            brushes = brushes.OrderBy(c => rand.Next()).ToList();
             SetupPalette();
-        }
-
-        private SolidColorBrush GetColorFromHex(string hexColor)
-        {
-            hexColor = hexColor.Replace("#", "");
-            if (hexColor.Length != 8)
-                throw new InvalidOperationException();
-
-            byte a = byte.Parse(hexColor.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-            byte r = byte.Parse(hexColor.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-            byte g = byte.Parse(hexColor.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-            byte b = byte.Parse(hexColor.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
-            return new SolidColorBrush(Color.FromArgb(a, r, g, b));
         }
 
         #endregion Palette
 
         private void AnimateAppearance()
-        {
-            AnimationHelper.OpacityQueueAnimation(parts.Select(item => item.UnknownPart)).Begin();
+        {            
             AnimationHelper.TranslateXAnimation(original, 800, 0).Begin();
             var paletteItems = new List<UIElement>();
             paletteItems.AddRange(palette.Children);
             paletteItems.Add(setAnswerButton);
             paletteItems.Add(cancelAnswerButton);
             AnimationHelper.PaletteAnimation(paletteItems, 95, 0).Begin();
+            AnimationHelper.OpacityAnimation(ImageParts.Select(item => item.UnknownPart)).Begin();
         }
 
         #endregion SetupControl
@@ -431,9 +399,9 @@ namespace ChooseColor.CustomControls
             var animation = AnimationHelper.ScaleInAnimation(parent, 1.5, 1);
             animation.Completed += (sender, args) =>
             {
-                if (CompletedCommand != null && CompletedCommand.CanExecute(this.parts))
+                if (CompletedCommand != null && CompletedCommand.CanExecute(ImageParts))
                 {
-                    CompletedCommand.Execute(this.parts);
+                    CompletedCommand.Execute(ImageParts);
                 }
             };
 

@@ -69,7 +69,7 @@ namespace ChooseColor.ViewModels
             NavigationProvider.Navigate(typeof(StartPage));
         }
 
-        public void SetAnswers(List<ImagePart> answers)
+        public void SetAnswers(ObservableCollection<ImagePart> answers)
         {
             this.answers = new ObservableCollection<ImagePart>(answers);
         }

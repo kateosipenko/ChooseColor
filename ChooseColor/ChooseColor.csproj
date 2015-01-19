@@ -139,12 +139,10 @@
     <Content Include="Assets\SmallLogo.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Icons\background.jpg" />
     <Content Include="Icons\dali.png" />
-    <Content Include="Icons\dali_colors.jpg" />
     <Content Include="Icons\davinci.png" />
-    <Content Include="Icons\mona_lisa.jpg" />
     <Content Include="Icons\serov.png" />
-    <Content Include="Icons\serovColors.jpg" />
     <Content Include="ImageParts\monalisa\1.png" />
     <Content Include="ImageParts\monalisa\10.png" />
     <Content Include="ImageParts\monalisa\2.png" />

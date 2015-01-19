@@ -21,5 +21,7 @@ namespace ChooseColor.Models
         public SolidColorBrush Color { get; set; }
 
         public SolidColorBrush UserAnswer { get; set; }
+
+        public string UserAnswerPath { get; set; }
     }
 }

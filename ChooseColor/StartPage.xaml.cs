@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChooseColor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,7 @@ namespace ChooseColor
         {
             this.InitializeComponent();
             beginBtn.Tapped += OnBeginBtnTapped;
+            Locator.MainStatic.CreateImageParts();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
