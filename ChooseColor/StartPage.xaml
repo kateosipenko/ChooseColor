@@ -50,7 +50,9 @@
     </Page.Resources>
     
     <Grid Background="{StaticResource BackgroundColorBrush}">
-        <Image Source="Icons/dali.png" x:Name="logo" RenderTransformOrigin="0.5, 0.5">
+        <Image Source="Icons/dali.png" x:Name="logo" VerticalAlignment="Stretch"
+               Stretch="UniformToFill"
+               RenderTransformOrigin="0.5, 0.5" HorizontalAlignment="Stretch">
             <Image.RenderTransform>
                 <CompositeTransform />
             </Image.RenderTransform>

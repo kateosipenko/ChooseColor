@@ -68,7 +68,7 @@ namespace ChooseColor.Utils
                 animation.From = 0;
                 animation.To = 1;
                 animation.BeginTime = TimeSpan.FromSeconds(1);
-                animation.Duration = new Duration(TimeSpan.FromSeconds(2));
+                animation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
                 storyboard.Children.Add(animation);
             }
 

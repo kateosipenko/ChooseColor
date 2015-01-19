@@ -20,7 +20,7 @@
     <Grid>
         
         <Grid.Background>
-            <ImageBrush ImageSource="Icons/background.png" />
+            <ImageBrush ImageSource="Icons/background.jpg" Opacity="0.9" />
         </Grid.Background>
         
         <Grid.ColumnDefinitions>
