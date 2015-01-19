@@ -21,7 +21,7 @@ namespace ChooseColor.ViewModels
         #region Constants
 
         // TODO: update before build
-        private const string PartsFolder = "time";
+        private const string PartsFolder = "serov";
         private const string PicturesFolder = "ImageParts";
         private const string ColorsFile = "colors.xml";
         private const string OriginalFileName = "original.jpg";

@@ -37,7 +37,7 @@
                    Text="Ваш вариант" Margin="0,24,0,0" />
         
         <Image Grid.Column="0" Grid.Row="1" Opacity="0" x:Name="correctAnswer"
-               Source="ImageParts/time/original.jpg" Margin="10"
+               Source="ImageParts/serov/original.jpg" Margin="10"
                VerticalAlignment="Center" HorizontalAlignment="Center" />
         
         <Grid Grid.Row="1" Grid.Column="1" x:Name="parent" Margin="10" />

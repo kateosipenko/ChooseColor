@@ -14,7 +14,7 @@ namespace ChooseColor.ViewModels
         #region Answers
 
         // TODO: replace
-        private const string TextResultPattern = "Вы на {0}% Сальвадор Дали";
+        private const string TextResultPattern = "Вы на {0}% Валентин Серов";
 
         private ObservableCollection<ImagePart> answers = new ObservableCollection<ImagePart>();
 

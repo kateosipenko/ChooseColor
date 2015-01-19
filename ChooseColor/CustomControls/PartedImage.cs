@@ -269,6 +269,7 @@ namespace ChooseColor.CustomControls
                 var width = (imageHeight * imageSize.Width) / imageSize.Height;
                 int left = (int)((this.ActualWidth - width) / 2);
 
+                original.MaxHeight = 250;
                 original.Width = left - original.Margin.Right - original.Margin.Left;
 
                 foreach (var item in ImageParts)
